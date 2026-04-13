@@ -1,0 +1,144 @@
+<h2 class="title">Jewellery Store</h2>
+
+<div class="add-box">
+    <h3>{{ isEditing ? 'Update Item' : 'Add New Item' }}</h3>
+
+    <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+
+    <div class="form-table header">
+        <div>Name</div>
+        <div>Metal Type</div>
+        <div>Weight</div>
+        <div>Making Charges</div>
+        <div>Tax (%)</div>
+        <div>Status</div>
+        <div>Action</div>
+    </div>
+
+    <div class="form-table">
+
+        <div>
+            <input [(ngModel)]="newItem.name" placeholder="Enter name" class="input"
+                (keypress)="allowOnlyLetters($event)" />
+
+            <small class="error" *ngIf="submitted && !newItem.name">
+                Required
+            </small>
+
+            <small class="error" *ngIf="submitted && newItem.name && !/^[A-Za-z ]+$/.test(newItem.name)">
+                Only letters allowed
+            </small>
+        </div>
+
+        <div>
+            <input [(ngModel)]="newItem.metalType" placeholder="gold / silver / diamond" class="input" />
+
+            <small class="error" *ngIf="submitted && !newItem.metalType">
+                Required
+            </small>
+        </div>
+
+        <div>
+            <input type="number" [(ngModel)]="newItem.weight" placeholder="Weight" class="input" />
+
+            <small class="error" *ngIf="submitted && newItem.weight <= 0">
+                Invalid
+            </small>
+        </div>
+
+        <div>
+            <input type="number" [(ngModel)]="newItem.makingCharges" placeholder="Making charges" class="input" />
+
+            <small class="error" *ngIf="submitted && newItem.makingCharges < 0">
+                Invalid
+            </small>
+        </div>
+
+        <div>
+            <input type="number" [(ngModel)]="newItem.taxPercent" placeholder="Tax %" class="input" />
+
+            <small class="error" *ngIf="submitted && newItem.taxPercent < 0">
+                Invalid
+            </small>
+        </div>
+
+        <div class="status-cell">
+            <input type="checkbox" [(ngModel)]="newItem.availability" />
+        </div>
+
+        <div>
+            <button class="btn-add" (click)="addItem()" [disabled]="!isValidForm()">
+                {{ isEditing ? 'Update' : 'Add' }}
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<div class="controls">
+    <label><b>Filter:</b></label>
+    <select (change)="onFilterChange($event)" class="input">
+        <option value="">All</option>
+        <option value="gold">Gold</option>
+        <option value="silver">Silver</option>
+        <option value="diamond">Diamond</option>
+    </select>
+
+    <label><b>Sort:</b></label>
+    <select (change)="onSortChange($event)" class="input">
+        <option value="">None</option>
+        <option value="name">Name</option>
+        <option value="weight">Weight</option>
+    </select>
+</div>
+
+<p *ngIf="filteredItems.length === 0" style="text-align:center; margin-top:20px;">
+    No items found.
+</p>
+
+<div class="grid">
+
+    <div *ngFor="let item of filteredItems; let i = index" class="card">
+
+        <h3>{{ item.name }}</h3>
+
+        <p><b>Metal:</b> {{ item.metalType }}</p>
+        <p><b>Weight:</b> {{ item.weight }}</p>
+        <p><b>Making:</b> ₹{{ item.makingCharges }}</p>
+        <p><b>Tax:</b> {{ item.taxPercent }}%</p>
+
+        <p>
+            <b>Status:</b>
+            <span [ngClass]="item.availability ? 'available' : 'out'">
+                {{ item.availability ? 'Available' : 'Out of Stock' }}
+            </span>
+        </p>
+
+        <hr>
+
+        <h4>Calculate Price</h4>
+
+        <input type="number" placeholder="Metal Price per gram" [(ngModel)]="metalPrices[i]" class="input" />
+
+        <input type="number" placeholder="Shipping Charges" [(ngModel)]="shippingCosts[i]" class="input" />
+
+        <button class="btn-calc" (click)="calculate(item, i)">
+            Calculate
+        </button>
+
+        <p *ngIf="finalPrices[i] !== undefined" class="price">
+            Final Price: ₹{{ finalPrices[i] }}
+        </p>
+
+        <button class="btn-calc" (click)="editItem(item)">
+            Edit
+        </button>
+
+        <button class="btn-delete" (click)="deleteItem(item.id)">
+            Delete
+        </button>
+
+    </div>
+
+</div>
